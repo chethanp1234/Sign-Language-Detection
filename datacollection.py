@@ -10,7 +10,7 @@ offset = 20
 imgSize = 300
 counter = 0
 
-folder = "/Users/chethanp1234/Desktop/EER/Sign-Language-detection/Hii"
+folder = " C:/Users/adity/OneDrive/Desktop/Sign/Hello"
 
 while True:
     success, img = cap.read()

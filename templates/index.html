@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Sign Language Detection</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .box {
+            border: 1px solid #ccc;
+            padding: 30px;
+            margin-top: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom {
+            margin-top: 20px;
+            width: 100%;
+            font-size: 18px;
+            padding: 10px;
+        }
+        .top-left {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .centered {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .heading {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .result-text {
+            font-size: 20px;
+            color: #007bff;
+            margin-top: 10px;
+        }
+        .form-group {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-left">
+        <h4>Sign Language Detection</h4>
+    </div>
+    <div class="container">
+        <div class="centered">
+            <div class="box">
+                <h3 class="heading">Live Test</h3>
+                <form id="testForm">
+                    <button type="button" class="btn btn-primary btn-custom" onclick="runTest()">Run Test</button>
+                </form>
+            </div>
+            <div class="box">
+                <h3 class="heading">Image Detection</h3>
+                <form id="imageForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <input type="file" class="form-control-file" id="imageInput" name="file" accept="image/*">
+                    </div>
+                    <button type="button" class="btn btn-primary btn-custom" onclick="uploadImage()">Upload Image</button>
+                </form>
+                <p class="result-text" id="imageResult"></p>
+            </div>
+            <div class="box">
+                <h3 class="heading">Video Detection</h3>
+                <form id="videoForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <input type="file" class="form-control-file" id="videoInput" name="file" accept="video/*">
+                    </div>
+                    <button type="button" class="btn btn-primary btn-custom" onclick="uploadVideo()">Upload Video</button>
+                </form>
+                <video id="videoPreview" controls style="display: none; width: 100%; margin-top: 20px;"></video>
+                <p class="result-text" id="videoResult"></p>
+            </div>
+        </div>
+    </div>
+    <script>
+        function runTest() {
+            fetch('/run_test', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    alert('Test started successfully');
+                } else {
+                    alert('Failed to start test');
+                }
+            }).catch(error => {
+                alert('Error: ' + error);
+            });
+        }
+
+        function uploadImage() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload_image', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.error) {
+                      alert('Error: ' + data.error);
+                  } else {
+                      document.getElementById('imageResult').innerText = 'Detected sign: ' + data.result.join(', ');
+                  }
+              }).catch(error => {
+                  alert('Error: ' + error);
+              });
+        }
+
+        function uploadVideo() {
+            const fileInput = document.getElementById('videoInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a video file.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload_video', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.error) {
+                      alert('Error: ' + data.error);
+                  } else {
+                      document.getElementById('videoResult').innerText = 'Detected signs: ' + data.result.join(', ');
+                      previewVideo(file);
+                  }
+              }).catch(error => {
+                  alert('Error: ' + error);
+              });
+        }
+
+        function previewVideo(file) {
+            const preview = document.getElementById('videoPreview');
+            const reader = new FileReader();
+
+            reader.onloadend = function () {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+            }
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
