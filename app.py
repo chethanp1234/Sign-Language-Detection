@@ -24,7 +24,7 @@ def index():
 
 @app.route('/run_test', methods=['POST'])
 def run_test():
-    subprocess.Popen(["python", "Sign_Language_Detection/test.py"])
+    subprocess.Popen(["python3", "Sign_Language_Detection/test.py"])
     return '', 204
 
 @app.route('/upload_image', methods=['POST'])
